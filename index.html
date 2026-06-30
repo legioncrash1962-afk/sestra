@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Трогательное письмо-посвящение для любимой сестры Анюты. Специально созданный сайт с фотографиями и искренними словами от брата.">
+  <meta name="description" content="Трогательное письмо-посвящение для любимой сестры Анюты. Специально созданный сайт с фотографиями и музыкой">
   <meta name="theme-color" content="#ff4d94">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -375,8 +375,16 @@
       <button id="openBtn" aria-label="Открыть письмо и получить сообщение">
         💝 Открыть письмо
       </button>
+      <button id="musicToggle" aria-label="Включить/отключить музыку">
+        🎵 Включить музыку
+      </button>
     </section>
   </main>
+
+  <audio id="bgMusic" preload="auto">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    Ваш браузер не поддерживает аудио.
+  </audio>
 
   <footer role="contentinfo">
     ❤️ Сделано с любовью специально для Анюты ❤️
@@ -402,12 +410,13 @@
       // Инициализация
       const init = () => {
         setupButton();
+        setupMusic();
         setupFloatingHearts();
         setupImages();
         setupPerformance();
       };
 
-      // Обработчик кнопки
+      // Обработчик кнопки письма
       const setupButton = () => {
         const btn = document.getElementById('openBtn');
         if (!btn) return;
@@ -426,6 +435,51 @@
           Math.floor(Math.random() * CONFIG.messages.length)
         ];
         alert(message);
+      };
+
+      // Управление музыкой
+      const setupMusic = () => {
+        const musicBtn = document.getElementById('musicToggle');
+        const bgMusic = document.getElementById('bgMusic');
+        if (!musicBtn || !bgMusic) return;
+
+        let isPlaying = false;
+
+        bgMusic.volume = 0.3;
+        bgMusic.loop = true;
+
+        musicBtn.addEventListener('click', () => {
+          if (isPlaying) {
+            bgMusic.pause();
+            musicBtn.textContent = '🎵 Включить музыку';
+            isPlaying = false;
+          } else {
+            bgMusic.play().catch((error) => {
+              console.error('Ошибка при воспроизведении музыки:', error);
+              alert('Не удалось воспроизвести музыку. Пожалуйста, проверьте подключение к интернету.');
+            });
+            musicBtn.textContent = '🔇 Выключить музыку';
+            isPlaying = true;
+          }
+        });
+
+        musicBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            musicBtn.click();
+          }
+        });
+
+        // Обновляем состояние кнопки при изменении состояния воспроизведения
+        bgMusic.addEventListener('play', () => {
+          isPlaying = true;
+          musicBtn.textContent = '🔇 Выключить музыку';
+        });
+
+        bgMusic.addEventListener('pause', () => {
+          isPlaying = false;
+          musicBtn.textContent = '🎵 Включить музыку';
+        });
       };
 
       // Парящие сердца
@@ -522,6 +576,8 @@
       // Очистка при unload
       window.addEventListener('beforeunload', () => {
         document.querySelectorAll('.floating-heart').forEach((el) => el.remove());
+        const bgMusic = document.getElementById('bgMusic');
+        if (bgMusic) bgMusic.pause();
       });
     })();
   </script>
